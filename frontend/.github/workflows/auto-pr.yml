@@ -1,0 +1,78 @@
+name: Auto Create PR with Gemini
+
+on:
+  push:
+    branches-ignore:
+      - main # main 제외, 나머지 모든 브랜치에서 실행
+
+env:
+  TARGET_BRANCH: main
+  SOURCE_BRANCH: ${{ github.ref_name }}
+
+jobs:
+  create-pull-request:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 코드 체크아웃
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # merge-base 계산 위해 전체 히스토리 필요
+
+      # 2. GitHub CLI 설치
+      - name: Install GitHub CLI
+        run: sudo apt-get install gh -y
+
+      # 3. 기존 PR 존재 여부 확인
+      - name: Check for existing PR
+        id: check-pr
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
+        run: |
+          existing_pr=$(gh pr list \
+            --head "$SOURCE_BRANCH" \
+            --base "$TARGET_BRANCH" \
+            --json number \
+            --jq '.[0].number')
+
+          if [ -n "$existing_pr" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "PR already exists: #$existing_pr"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      # 4. Gemini CLI 설치
+      - name: Install Gemini CLI
+        if: steps.check-pr.outputs.exists == 'false'
+        run: |
+          npm install -g @google/gemini-cli
+
+      # 5. PR 제목/본문 생성
+      - name: Generate PR Title and Body
+        if: steps.check-pr.outputs.exists == 'false'
+        id: generate-pr
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          bash .github/scripts/generate-pr-description.sh \
+            "$TARGET_BRANCH" \
+            "$SOURCE_BRANCH"
+
+      # 6. PR 생성
+      - name: Create Pull Request
+        if: steps.check-pr.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
+          TZ: Asia/Seoul
+        run: |
+          gh pr create \
+            --base "$TARGET_BRANCH" \
+            --head "$SOURCE_BRANCH" \
+            --title "${{ steps.generate-pr.outputs.title }}" \
+            --body "${{ steps.generate-pr.outputs.body }}
+
+          ---
+          🤖 Gemini AI로 자동 생성된 PR
+          생성 시간: $(date +'%Y-%m-%d %H:%M:%S')"
