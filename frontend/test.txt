@@ -1,2 +1,1 @@
-hello
-its test
+This is a test commit to verify that the Gemini PR bot workflow is working correctly.
