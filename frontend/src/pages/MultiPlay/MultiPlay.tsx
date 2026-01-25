@@ -29,7 +29,7 @@ export default function MultiPlay() {
         {players.map(({ ready, score, name }, index) => (
           <div
             key={index}
-            className={`transition-transform duration-300 ${
+            className={`transition-transform duration-300 border-2 border-green-400 rounded-2xl ${
               ready
                 ? "scale-105 shadow-[0_0_32px_#00ff00cc]"
                 : "scale-100 shadow-[0_0_16px_#00ff0033]"
