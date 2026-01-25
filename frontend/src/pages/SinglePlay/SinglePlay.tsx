@@ -28,7 +28,7 @@ export default function SinglePlay() {
               [ START! ]
             </button>
           ) : (
-            <>gdgd</>
+            <>{/* TODO: 게임 화면을 구현해야 합니다. */}ㅎㅇㅎㅇ</>
           )}
         </div>
         <div className="flex gap-8 w-full justify-between">

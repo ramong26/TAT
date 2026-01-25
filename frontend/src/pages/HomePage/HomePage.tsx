@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import useMatrixRain from "../../shared/hooks/useMatrixRain";
+
+import useMatrixRain from "@/shared/hooks/useMatrixRain";
 
 function App() {
   const text = "HI!\n\nIT'S TERMINAL TETRIS!";
@@ -23,7 +24,7 @@ function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   useMatrixRain({ canvasRef, speed: 4, text: "|" });
 
-  // Navigation handlerss
+  // Navigation handlers
   const navigate = useNavigate();
   const handleSinglePlay = () => {
     navigate("/singleplay");

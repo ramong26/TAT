@@ -18,15 +18,13 @@ export default function useMatrixRain({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const raindrops: { x: number; y: number; speed: number; length: number }[] =
-      [];
+    const raindrops: { x: number; y: number; speed: number }[] = [];
 
-    const creaateRaindrop = () => {
+    const createRaindrop = () => {
       raindrops.push({
         x: Math.random() * canvas.width,
         y: 0,
         speed: Math.random() * speed,
-        length: 10 + Math.random() * 20,
       });
     };
 
@@ -49,7 +47,7 @@ export default function useMatrixRain({
     };
 
     const resize = () => {
-      const canvas = canvasRef?.current;
+      const canvas = canvasRef.current;
       if (canvas) {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -61,7 +59,7 @@ export default function useMatrixRain({
 
     const interval = setInterval(() => {
       if (raindrops.length < 100) {
-        creaateRaindrop();
+        createRaindrop();
       }
       update();
     }, 16);

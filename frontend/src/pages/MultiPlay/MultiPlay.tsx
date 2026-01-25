@@ -42,12 +42,6 @@ export default function MultiPlay() {
               </span>
               <span className="text-[#00ff00] font-mono text-2xl">000000</span>
             </div>
-            <div className="flex flex-col items-end">
-              <span className="text-green-400 font-mono text-lg mb-2">
-                LEVEL
-              </span>
-              <span className="text-[#00ff00] font-mono text-2xl">01</span>
-            </div>
           </div>
         </div>
         <div className="bg-[#0c1610] z-10 border-2 border-green-500 rounded-lg shadow-[0_0_24px_#00ff00] px-12 py-10 flex flex-col items-center">
@@ -74,12 +68,6 @@ export default function MultiPlay() {
                 SCORE
               </span>
               <span className="text-[#00ff00] font-mono text-2xl">000000</span>
-            </div>
-            <div className="flex flex-col items-end">
-              <span className="text-green-400 font-mono text-lg mb-2">
-                LEVEL
-              </span>
-              <span className="text-[#00ff00] font-mono text-2xl">01</span>
             </div>
           </div>
         </div>
