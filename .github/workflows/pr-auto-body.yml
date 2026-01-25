@@ -1,4 +1,4 @@
-name: Auto PR Body (Korean + CodeRabbit Style)
+name: Auto PR Body (Korean + CodeRabbit)
 
 on:
   pull_request:
@@ -23,4 +23,5 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.PERSONAL_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: bash .github/scripts/generate-pr-body.sh

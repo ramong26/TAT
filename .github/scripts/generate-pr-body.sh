@@ -15,7 +15,7 @@ PROMPT="너는 CodeRabbit 스타일의 GitHub PR 리뷰 봇이다.
 - 주요 변경 사항 나열
 
 ## 🧪 Test
-- 테스트 여부 또는 확인 방법
+- 테스트 방법 또는 확인 사항
 
 ## ⚠️ Notes
 - 리뷰어가 주의해서 볼 점
@@ -27,9 +27,7 @@ $FILES
 $STATS
 "
 
-RESPONSE=$(npx @google/gemini-cli chat \
-  --model=gemini-2.0-flash \
-  --prompt "$PROMPT")
+RESPONSE=$(npx @google/gemini-cli "$PROMPT" --model=gemini-2.0-flash)
 
 echo "$RESPONSE" > pr_body.txt
 
