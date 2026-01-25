@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import useMatrixRain from "@/shared/hooks/useMatrixRain";
 
 function App() {
   const text = "HI!\n\nIT'S TERMINAL TETRIS!";
   const [displayed, setDisplayed] = useState("");
-  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Typewriter effect
   useEffect(() => {
@@ -18,67 +20,18 @@ function App() {
     return () => clearInterval(interval);
   }, []);
 
-  // Matrix rain effect
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+  // // Matrix rain effect
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  useMatrixRain({ canvasRef, speed: 4, text: "|" });
 
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const raindrops: { x: number; y: number; speed: number; length: number }[] =
-      [];
-
-    const creaateRaindrop = () => {
-      raindrops.push({
-        x: Math.random() * canvas.width,
-        y: 0,
-        speed: 2 + Math.random() * 10,
-        length: 10 + Math.random() * 20,
-      });
-    };
-
-    const update = () => {
-      if (!ctx) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#00ff00";
-      ctx.font = "16px monospace";
-
-      raindrops.forEach((drop) => {
-        ctx.fillText("|", drop.x, drop.y);
-        drop.y += drop.speed;
-      });
-
-      for (let i = raindrops.length - 1; i >= 0; i--) {
-        if (raindrops[i].y > canvas.height) {
-          raindrops.splice(i, 1);
-        }
-      }
-    };
-
-    const resize = () => {
-      if (canvas) {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-      }
-    };
-
-    resize();
-    window.addEventListener("resize", resize);
-
-    const interval = setInterval(() => {
-      if (raindrops.length < 100) {
-        creaateRaindrop();
-      }
-      update();
-    }, 30);
-
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener("resize", resize);
-    };
-  }, []);
-
+  // Navigation handlers
+  const navigate = useNavigate();
+  const handleSinglePlay = () => {
+    navigate("/singleplay");
+  };
+  const handleMultiPlay = () => {
+    navigate("/multiplay");
+  };
   return (
     <div className="relative min-h-screen bg-black overflow-hidden">
       <canvas
@@ -91,10 +44,16 @@ function App() {
         </h1>
 
         <div className="flex gap-6 mt-8 justify-center">
-          <button className="border-2 border-green-500 bg-[#0c1610] text-[#00ff00] px-8 py-3 text-lg font-mono rounded-lg shadow-[0_0_8px_#00ff00] font-bold  hover:bg-[#00ff00] hover:text-[#00fff6]">
+          <button
+            className="border-2 border-green-500 bg-[#0c1610] text-[#00ff00] px-8 py-3 text-lg font-mono rounded-lg shadow-[0_0_8px_#00ff00] font-bold  hover:bg-[#00ff00] hover:text-[#00fff6]"
+            onClick={handleSinglePlay}
+          >
             SINGLE PLAY
           </button>
-          <button className="border-2 border-green-500 bg-[#0c1610] text-[#00ff00] px-8 py-3 text-lg font-mono rounded-lg shadow-[0_0_8px_#00ff00] font-bold  hover:bg-[#00ff00] hover:text-[#00fff6]">
+          <button
+            className="border-2 border-green-500 bg-[#0c1610] text-[#00ff00] px-8 py-3 text-lg font-mono rounded-lg shadow-[0_0_8px_#00ff00] font-bold  hover:bg-[#00ff00] hover:text-[#00fff6]"
+            onClick={handleMultiPlay}
+          >
             MULTI PLAY
           </button>
         </div>
