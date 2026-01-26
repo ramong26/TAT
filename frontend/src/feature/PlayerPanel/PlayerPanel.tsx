@@ -1,5 +1,7 @@
 import type { PlayerPanelProps } from "./type";
 
+import GameBoard from "@/feature/GameBoard";
+
 export default function PlayerPanel({
   mode,
   title,
@@ -9,11 +11,39 @@ export default function PlayerPanel({
   onReadyChange,
   countdown,
 }: PlayerPanelProps) {
+  // Countdown display logic
   const countdownDisplay = () => {
     if (countdown === null && mode === "MULTI") return "waiting...";
-    else if (countdown !== null && mode === "SINGLE")
+    else if (countdown !== null && countdown > 0)
       return `Game starts in ${countdown}...`;
-    return `Game starts in ${countdown}...`;
+    else if (countdown === 0) return <GameBoard />;
+  };
+
+  // Display based on mode
+  const modeDisplay = () => {
+    if (mode === "SINGLE")
+      return (
+        <>
+          <button
+            className="text-[#00ff00] font-extrabold text-5xl md:text-6xl opacity-80 hover:opacity-100 transition-opacity duration-300 border-2 border-green-500 rounded-lg px-10 py-4 hover:shadow-[0_0_16px_#00ff00] bg-black/60 mb-4"
+            onClick={() => onReadyChange(true)}
+          >
+            [ START ]
+          </button>
+          <span className="text-green-300 font-mono text-xl md:text-2xl">
+            Click to Start
+          </span>
+        </>
+      );
+    else
+      return (
+        <button
+          className="text-[#00ff00] font-extrabold text-5xl md:text-6xl opacity-80 hover:opacity-100 transition-opacity duration-300 border-2 border-green-500 rounded-lg px-10 py-4 hover:shadow-[0_0_16px_#00ff00] bg-black/60"
+          onClick={() => onReadyChange(true)}
+        >
+          [ READY! ]
+        </button>
+      );
   };
 
   return (
@@ -27,30 +57,13 @@ export default function PlayerPanel({
           {name}
         </span>
       </h1>
-      <div className="relative w-full h-80 md:h-96 bg-black border border-green-700 rounded-lg flex flex-col items-center justify-center mb-6 shadow-[0_0_16px_#00ff0033]">
+      <div
+        className={`relative h-full bg-black border border-green-700 rounded-lg flex flex-col items-center justify-center mb-6 shadow-[0_0_16px_#00ff0033] ${countdown === 0 ? "w-fit" : "w-full h-120 md:h-150"}`}
+      >
         {!ready ? (
-          mode === "SINGLE" ? (
-            <>
-              <button
-                className="text-[#00ff00] font-extrabold text-5xl md:text-6xl opacity-80 hover:opacity-100 transition-opacity duration-300 border-2 border-green-500 rounded-lg px-10 py-4 hover:shadow-[0_0_16px_#00ff00] bg-black/60 mb-4"
-                onClick={() => onReadyChange(true)}
-              >
-                [ START ]
-              </button>
-              <span className="text-green-300 font-mono text-xl md:text-2xl">
-                Click to Start
-              </span>
-            </>
-          ) : (
-            <button
-              className="text-[#00ff00] font-extrabold text-5xl md:text-6xl opacity-80 hover:opacity-100 transition-opacity duration-300 border-2 border-green-500 rounded-lg px-10 py-4 hover:shadow-[0_0_16px_#00ff00] bg-black/60"
-              onClick={() => onReadyChange(true)}
-            >
-              [ READY! ]
-            </button>
-          )
+          modeDisplay()
         ) : (
-          <span className="text-[#00ff00] font-mono text-2xl animate-pulse">
+          <span className="text-[#00ff00] font-mono text-2xl ">
             {countdownDisplay()}
           </span>
         )}

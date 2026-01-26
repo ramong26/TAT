@@ -37,7 +37,6 @@ export default function MultiPlay() {
 
         if (timeLeft <= 0 && interval) {
           clearInterval(interval);
-          console.log("GAME START");
         }
       }, 1000);
     } else {
