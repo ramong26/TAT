@@ -1,12 +1,19 @@
+import { useState } from "react";
+import { getRandomTetromino } from "./tetromino";
+
 export default function GameBoard() {
+  // Initialize empty board
   const rows = 20;
   const cols = 10;
   const board = Array.from({ length: rows }, () =>
     Array.from({ length: cols }, () => null),
   );
 
+  //
+  const [currentTetromino, setCurrentTetromino] =
+    useState(getRandomTetromino());
   return (
-    <div className="relative bg-transparent border-3 border-green-400 rounded-xl shadow-[0_0_24px_#00ff00bb] p-2 flex flex-col items-center transition-all duration-300 w-full h-full">
+    <div className="relative bg-transparent border-2 border-green-400 rounded-xl shadow-[0_0_24px_#00ff00bb] p-2 flex flex-col items-center transition-all duration-300 w-full h-full">
       <div className="absolute inset-0 rounded-xl border-2 border-green-400 opacity-10 pointer-events-none blur-[1px] z-0" />
       <div
         className="relative grid gap-0.5 z-10"
