@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState, useEffect } from "react";
 
 import PlayerPanel from "@/feature/PlayerPanel/PlayerPanel";
 
@@ -17,15 +17,36 @@ export default function SinglePlay() {
   });
 
   // Update ready state
-  const setPlayerReady = useCallback(
-    (ready: boolean) => {
-      const updatedPlayers = { ...players };
-      updatedPlayers.ready = ready;
-      setPlayers(updatedPlayers);
-    },
-    [players],
-  );
+  const setPlayerReady = useCallback((ready: boolean) => {
+    setPlayers((prev) => ({ ...prev, ready }));
+  }, []);
 
+  // Countdown state
+  const [countdown, setCountdown] = useState<number | null>(null);
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval> | null = null;
+
+    if (players.ready) {
+      let timeLeft = 5;
+      setCountdown(timeLeft);
+
+      interval = setInterval(() => {
+        timeLeft -= 1;
+        setCountdown(timeLeft);
+
+        if (timeLeft <= 0 && interval) {
+          clearInterval(interval);
+          console.log("GAME START");
+        }
+      }, 1000);
+    } else {
+      setCountdown(null);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [players.ready]);
   return (
     <div className="flex items-center justify-center min-h-screen bg-black">
       <canvas
@@ -39,7 +60,7 @@ export default function SinglePlay() {
         score={players.score}
         name={players.name}
         onReadyChange={(newReady) => setPlayerReady(newReady)}
-        countdown={players.ready}
+        countdown={countdown}
       />
     </div>
   );

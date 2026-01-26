@@ -7,5 +7,5 @@ export interface PlayerPanelProps {
   score: number;
   name: string;
   onReadyChange: (ready: boolean) => void;
-  countdown?: boolean;
+  countdown?: number | null;
 }

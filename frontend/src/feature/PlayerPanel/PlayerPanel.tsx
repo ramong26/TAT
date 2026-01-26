@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import type { PlayerPanelProps } from "./type";
 
 export default function PlayerPanel({
@@ -10,33 +9,11 @@ export default function PlayerPanel({
   onReadyChange,
   countdown,
 }: PlayerPanelProps) {
-  const [countdownTime, setCountdownTime] = useState<number | null>(null);
-
-  useEffect(() => {
-    let interval: ReturnType<typeof setInterval>;
-    if (countdown) {
-      let timeLeft = 5;
-      setCountdownTime(timeLeft);
-      interval = setInterval(() => {
-        timeLeft -= 1;
-        if (timeLeft >= 0) {
-          setCountdownTime(timeLeft);
-        } else {
-          clearInterval(interval);
-        }
-      }, 1000);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-      setCountdownTime(null);
-    };
-  }, [countdown]);
-
   const countdownDisplay = () => {
-    if (countdownTime === null && mode === "MULTI") return "waiting...";
-    else if (countdownTime !== null && mode === "SINGLE")
-      return `Game starts in ${countdownTime}...`;
-    return `Game starts in ${countdownTime}...`;
+    if (countdown === null && mode === "MULTI") return "waiting...";
+    else if (countdown !== null && mode === "SINGLE")
+      return `Game starts in ${countdown}...`;
+    return `Game starts in ${countdown}...`;
   };
 
   return (
