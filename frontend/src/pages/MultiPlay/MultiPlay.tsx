@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import useMatrixRain from "@/shared/hooks/useMatrixRain";
-import PlayerPanel from "@/feature/MultiPlay/PlayerPanel";
+import PlayerPanel from "@/feature/PlayerPanel";
 
 export default function MultiPlay() {
   // Matrix rain effect
@@ -19,8 +19,10 @@ export default function MultiPlay() {
     setPlayers(updatedPlayers);
   };
 
+  const allReady = players.every((player) => player.ready);
+
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-black via-[#0c1610] to-[#1a2e1d] flex items-center justify-center overflow-hidden">
+    <div className="relative min-h-screen bg-linear-to-br from-black via-[#0c1610] to-[#1a2e1d] flex items-center justify-center overflow-hidden">
       <canvas
         ref={canvasRef}
         className="fixed top-0 left-0 w-full h-full pointer-events-none z-0"
@@ -36,11 +38,13 @@ export default function MultiPlay() {
             }`}
           >
             <PlayerPanel
+              mode="MULTI"
               title="MULTI PLAY MODE"
               ready={ready}
               score={score}
               name={name}
               onReadyChange={(newReady) => setPlayerReady(index, newReady)}
+              countdown={allReady}
             />
           </div>
         ))}
