@@ -87,6 +87,31 @@ export const TETROMINOS: { [key: string]: Tetromino } = {
     ],
     color: "#f00000",
   },
+  J: {
+    shape: [
+      [
+        [1, 0, 0],
+        [1, 1, 1],
+        [0, 0, 0],
+      ],
+      [
+        [0, 1, 1],
+        [0, 1, 0],
+        [0, 1, 0],
+      ],
+      [
+        [0, 0, 0],
+        [1, 1, 1],
+        [0, 0, 1],
+      ],
+      [
+        [0, 1, 0],
+        [0, 1, 0],
+        [1, 1, 0],
+      ],
+    ],
+    color: "#0000f0",
+  },
 };
 
 export function getRandomTetromino(): Tetromino {
