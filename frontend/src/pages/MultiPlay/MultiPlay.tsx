@@ -2,6 +2,8 @@ import { useCallback, useRef, useState, useEffect } from "react";
 import useMatrixRain from "@/shared/hooks/useMatrixRain";
 import PlayerPanel from "@/feature/PlayerPanel";
 
+const COUNTDOWN_SECONDS = 5;
+
 export default function MultiPlay() {
   // Matrix rain effect
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -28,7 +30,7 @@ export default function MultiPlay() {
     let interval: ReturnType<typeof setInterval> | null = null;
 
     if (allReady) {
-      let timeLeft = 5;
+      let timeLeft = COUNTDOWN_SECONDS;
       setCountdown(timeLeft);
 
       interval = setInterval(() => {
