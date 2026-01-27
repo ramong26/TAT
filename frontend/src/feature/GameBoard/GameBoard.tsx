@@ -23,6 +23,7 @@ export default function GameBoard() {
 
   const [fallingTetromino, setFallingTetromino] =
     useState<FallingTetromino | null>(fallingTetrominoInitial());
+  const [gameover, setGameover] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -69,7 +70,31 @@ export default function GameBoard() {
             });
           });
           setBoard(newBoard);
-          return fallingTetrominoInitial();
+          const nextTetromino = fallingTetrominoInitial();
+          const nextShape = nextTetromino.tetromino.shape[0];
+          let gameOverCollision = false;
+          nextShape.forEach((row, y) => {
+            row.forEach((cell, x) => {
+              if (cell) {
+                const boardY = nextTetromino.position.y + y;
+                const boardX = nextTetromino.position.x + x;
+                if (
+                  boardY >= 0 &&
+                  boardY < rows &&
+                  boardX >= 0 &&
+                  boardX < cols &&
+                  newBoard[boardY][boardX]
+                ) {
+                  gameOverCollision = true;
+                }
+              }
+            });
+          });
+          if (gameOverCollision) {
+            setGameover(true);
+            return null;
+          }
+          return nextTetromino;
         }
 
         return {
@@ -177,6 +202,7 @@ export default function GameBoard() {
       });
     });
   }
+
   return (
     <div className="relative bg-transparent border-2 border-green-400 rounded-xl shadow-[0_0_24px_#00ff00bb] p-2 flex flex-col items-center transition-all duration-300 w-full h-full">
       <div className="absolute inset-0 rounded-xl border-2 border-green-400 opacity-10 pointer-events-none blur-[1px] z-0" />
