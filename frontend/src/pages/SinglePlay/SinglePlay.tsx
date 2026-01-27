@@ -4,6 +4,8 @@ import PlayerPanel from "@/feature/PlayerPanel/PlayerPanel";
 
 import useMatrixRain from "@/shared/hooks/useMatrixRain";
 
+const COUNTDOWN_SECONDS = 5;
+
 export default function SinglePlay() {
   // Matrix rain effect
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -27,7 +29,7 @@ export default function SinglePlay() {
     let interval: ReturnType<typeof setInterval> | null = null;
 
     if (players.ready) {
-      let timeLeft = 5;
+      let timeLeft = COUNTDOWN_SECONDS;
       setCountdown(timeLeft);
 
       interval = setInterval(() => {

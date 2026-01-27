@@ -58,7 +58,7 @@ export default function PlayerPanel({
         </span>
       </h1>
       <div
-        className={`relative h-full  bg-black  border-green-700 rounded-2xl flex flex-col items-center justify-center mb-6 shadow-[0_0_16px_#00ff0033] ${countdown === 0 ? "w-fit border-2" : "w-full h-120 md:h-150"}`}
+        className={`relative h-full  bg-black  border-green-700 rounded-2xl flex flex-col items-center justify-center mb-6 shadow-[0_0_16px_#00ff0033] ${countdown === 0 ? "w-full h-120 md:h-155 border-2" : "w-full h-120 md:h-155"}`}
       >
         {!ready ? (
           modeDisplay()

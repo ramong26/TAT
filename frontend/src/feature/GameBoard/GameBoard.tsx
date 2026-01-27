@@ -11,6 +11,38 @@ export default function GameBoard() {
     ),
   );
 
+  // Collision detection
+  const isCollision = useCallback(
+    (
+      tetromino: FallingTetromino,
+      newPosition: { x: number; y: number },
+      rotationIndex: number,
+      board: (string | null)[][],
+      rows: number,
+      cols: number,
+    ): boolean => {
+      const shape = tetromino.tetromino.shape[rotationIndex];
+      for (let y = 0; y < shape.length; y++) {
+        for (let x = 0; x < shape[y].length; x++) {
+          if (shape[y][x]) {
+            const boardY = newPosition.y + y;
+            const boardX = newPosition.x + x;
+            if (
+              boardY >= rows ||
+              boardX < 0 ||
+              boardX >= cols ||
+              (boardY >= 0 && board[boardY][boardX])
+            ) {
+              return true;
+            }
+          }
+        }
+      }
+      return false;
+    },
+    [],
+  );
+
   // Initialize falling tetromino
   const fallingTetrominoInitial = useCallback(
     (): FallingTetromino => ({
@@ -35,21 +67,15 @@ export default function GameBoard() {
         const shape = tetromino.shape[rotationIndex];
         const newY = position.y + 1;
 
-        let collision = false;
-        // Check for collision
-        shape.forEach((row, y) => {
-          row.forEach((cell, x) => {
-            if (cell) {
-              const boardY = newY + y;
-              const boardX = position.x + x;
-              if (boardY >= rows || (boardY >= 0 && board[boardY][boardX])) {
-                collision = true;
-              } else if (boardX < 0 || boardX >= cols) {
-                collision = true;
-              }
-            }
-          });
-        });
+        const collision = isCollision(
+          prev,
+          { x: position.x, y: newY },
+          rotationIndex,
+          board,
+          rows,
+          cols,
+        );
+
         // If collision, lock the tetromino and spawn a new one
         if (collision) {
           const newBoard = board.map((row) => [...row]);
@@ -105,40 +131,9 @@ export default function GameBoard() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [fallingTetromino, cols, board, fallingTetrominoInitial]);
+  }, [fallingTetromino, board, isCollision, fallingTetrominoInitial]);
 
   // Handle keyboard input
-  const isCollision = useCallback(
-    (
-      tetromino: FallingTetromino,
-      newPosition: { x: number; y: number },
-      rotationIndex: number,
-      board: (string | null)[][],
-      rows: number,
-      cols: number,
-    ): boolean => {
-      const shape = tetromino.tetromino.shape[rotationIndex];
-      for (let y = 0; y < shape.length; y++) {
-        for (let x = 0; x < shape[y].length; x++) {
-          if (shape[y][x]) {
-            const boardY = newPosition.y + y;
-            const boardX = newPosition.x + x;
-            if (
-              boardY >= rows ||
-              boardX < 0 ||
-              boardX >= cols ||
-              (boardY >= 0 && board[boardY][boardX])
-            ) {
-              return true;
-            }
-          }
-        }
-      }
-      return false;
-    },
-    [],
-  );
-
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       e.preventDefault();
