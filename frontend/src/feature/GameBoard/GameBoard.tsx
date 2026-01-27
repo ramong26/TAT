@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { getRandomTetromino } from "./tetromino";
+import type { FallingTetromino } from "@/types/types";
 
 export default function GameBoard() {
   const rows = 20;
@@ -10,24 +11,97 @@ export default function GameBoard() {
     ),
   );
 
-  const [currentTetromino, setCurrentTetromino] =
-    useState(getRandomTetromino());
-  const [position, setPosition] = useState({ x: 3, y: 0 });
-  const [rotation, setRotation] = useState(0);
+  // Initialize falling tetromino
+  const fallingTetrominoInitial = useCallback(
+    (): FallingTetromino => ({
+      tetromino: getRandomTetromino(),
+      position: { x: Math.floor(cols / 2) - 1, y: 0 },
+      rotationIndex: 0,
+    }),
+    [cols],
+  );
 
-  // Is collision detection
+  const [fallingTetromino, setFallingTetromino] =
+    useState<FallingTetromino | null>(fallingTetrominoInitial());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setFallingTetromino((prev) => {
+        if (!prev) {
+          return fallingTetrominoInitial();
+        }
+        const { tetromino, position, rotationIndex } = prev;
+        const shape = tetromino.shape[rotationIndex];
+        const newY = position.y + 1;
+
+        let collision = false;
+        // Check for collision
+        shape.forEach((row, y) => {
+          row.forEach((cell, x) => {
+            if (cell) {
+              const boardY = newY + y;
+              const boardX = position.x + x;
+              if (boardY >= rows || (boardY >= 0 && board[boardY][boardX])) {
+                collision = true;
+              } else if (boardX < 0 || boardX >= cols) {
+                collision = true;
+              }
+            }
+          });
+        });
+        // If collision, lock the tetromino and spawn a new one
+        if (collision) {
+          const newBoard = board.map((row) => [...row]);
+          shape.forEach((row, y) => {
+            row.forEach((cell, x) => {
+              if (cell) {
+                const boardY = position.y + y;
+                const boardX = position.x + x;
+                if (
+                  boardY >= 0 &&
+                  boardY < rows &&
+                  boardX >= 0 &&
+                  boardX < cols
+                ) {
+                  newBoard[boardY][boardX] = tetromino.color;
+                }
+              }
+            });
+          });
+          setBoard(newBoard);
+          return fallingTetrominoInitial();
+        }
+
+        return {
+          ...prev,
+          position: { x: position.x, y: newY },
+        };
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [fallingTetromino, cols, board, fallingTetrominoInitial]);
+
+  // Handle keyboard input
   const isCollision = useCallback(
-    (x: number, y: number, rot: number) => {
-      const shape = currentTetromino.shape[rot];
-      for (let r = 0; r < shape.length; r++) {
-        for (let c = 0; c < shape[r].length; c++) {
-          if (shape[r][c]) {
-            const boardX = x + c;
-            const boardY = y + r;
+    (
+      tetromino: FallingTetromino,
+      newPosition: { x: number; y: number },
+      rotationIndex: number,
+      board: (string | null)[][],
+      rows: number,
+      cols: number,
+    ): boolean => {
+      const shape = tetromino.tetromino.shape[rotationIndex];
+      for (let y = 0; y < shape.length; y++) {
+        for (let x = 0; x < shape[y].length; x++) {
+          if (shape[y][x]) {
+            const boardY = newPosition.y + y;
+            const boardX = newPosition.x + x;
             if (
+              boardY >= rows ||
               boardX < 0 ||
               boardX >= cols ||
-              boardY >= rows ||
               (boardY >= 0 && board[boardY][boardX])
             ) {
               return true;
@@ -37,94 +111,72 @@ export default function GameBoard() {
       }
       return false;
     },
-    [currentTetromino, board],
+    [],
   );
 
-  // Fix tetromino to the board
-  const fixTetromino = useCallback(() => {
-    setBoard((prev) => {
-      const newBoard = prev.map((row) => [...row]);
-      const shape = currentTetromino.shape[rotation];
-      for (let r = 0; r < shape.length; r++) {
-        for (let c = 0; c < shape[r].length; c++) {
-          if (shape[r][c]) {
-            const boardY = position.y + r;
-            const boardX = position.x + c;
-            if (boardY >= 0 && boardY < rows && boardX >= 0 && boardX < cols) {
-              newBoard[boardY][boardX] = currentTetromino.color;
-            }
-          }
-        }
-      }
-      return newBoard;
-    });
-  }, [currentTetromino, position, rotation]);
-
-  // Automatic block descent and fixation
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (isCollision(position.x, position.y + 1, rotation)) {
-        fixTetromino();
-        setCurrentTetromino(getRandomTetromino());
-        setPosition({ x: 3, y: 0 });
-        setRotation(0);
-      } else {
-        setPosition((prev) => ({ x: prev.x, y: prev.y + 1 }));
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [position, rotation, isCollision, fixTetromino]);
-
-  // Keyboard controls
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
+      e.preventDefault();
+      if (!fallingTetromino) return;
+      const { tetromino, position, rotationIndex } = fallingTetromino;
+      const newPosition = { ...position };
+      let newRotationIndex = rotationIndex;
+
       if (e.key === "ArrowLeft") {
-        if (!isCollision(position.x - 1, position.y, rotation)) {
-          setPosition((prev) => ({ x: prev.x - 1, y: prev.y }));
-        }
+        newPosition.x -= 1;
       } else if (e.key === "ArrowRight") {
-        if (!isCollision(position.x + 1, position.y, rotation)) {
-          setPosition((prev) => ({ x: prev.x + 1, y: prev.y }));
-        }
-      } else if (e.key === "ArrowDown" || e.key === " ") {
-        if (!isCollision(position.x, position.y + 1, rotation)) {
-          setPosition((prev) => ({ x: prev.x, y: prev.y + 1 }));
-        }
+        newPosition.x += 1;
+      } else if (e.key === "ArrowDown") {
+        newPosition.y += 1;
       } else if (e.key === "ArrowUp") {
-        const nextRotation = (rotation + 1) % currentTetromino.shape.length;
-        if (!isCollision(position.x, position.y, nextRotation)) {
-          setRotation(nextRotation);
-        }
+        newRotationIndex = (rotationIndex + 1) % tetromino.shape.length;
+      }
+
+      if (
+        !isCollision(
+          fallingTetromino,
+          newPosition,
+          newRotationIndex,
+          board,
+          rows,
+          cols,
+        )
+      ) {
+        setFallingTetromino({
+          tetromino: fallingTetromino.tetromino,
+          position: newPosition,
+          rotationIndex: newRotationIndex,
+        });
       }
     },
-    [position, rotation, isCollision, currentTetromino.shape.length],
+    [fallingTetromino, board, isCollision],
   );
-
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, [handleKeyDown]);
 
-  // Merge current tetromino with the board for display
-  const displayBoard = board.map((row, rowIdx) =>
-    row.map((cell, colIdx) => {
-      const shape = currentTetromino.shape[rotation];
-      const tRow = rowIdx - position.y;
-      const tCol = colIdx - position.x;
-      if (
-        tRow >= 0 &&
-        tCol >= 0 &&
-        tRow < shape.length &&
-        tCol < shape[0].length &&
-        shape[tRow][tCol]
-      ) {
-        return currentTetromino.color;
-      }
-      return cell;
-    }),
-  );
+  // Render the board with the falling tetromino
+  const displayBoard = board.map((row) => [...row]);
 
+  if (fallingTetromino) {
+    const { tetromino, position, rotationIndex } = fallingTetromino;
+    const shape = tetromino.shape[rotationIndex];
+    shape.forEach((row, y) => {
+      row.forEach((cell, x) => {
+        if (cell) {
+          const boardY = position.y + y;
+          const boardX = position.x + x;
+
+          if (boardY >= 0 && boardY < rows && boardX >= 0 && boardX < cols) {
+            displayBoard[boardY][boardX] = tetromino.color;
+          }
+        }
+      });
+    });
+  }
   return (
     <div className="relative bg-transparent border-2 border-green-400 rounded-xl shadow-[0_0_24px_#00ff00bb] p-2 flex flex-col items-center transition-all duration-300 w-full h-full">
       <div className="absolute inset-0 rounded-xl border-2 border-green-400 opacity-10 pointer-events-none blur-[1px] z-0" />

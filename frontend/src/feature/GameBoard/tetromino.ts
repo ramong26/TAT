@@ -1,9 +1,4 @@
-export type TetrominoShape = number[][];
-
-export interface Tetromino {
-  shape: TetrominoShape[];
-  color: string;
-}
+import type { Tetromino } from "@/types/types";
 
 export const TETROMINOS: { [key: string]: Tetromino } = {
   I: {
@@ -114,9 +109,9 @@ export const TETROMINOS: { [key: string]: Tetromino } = {
   },
 };
 
-export function getRandomTetromino(): Tetromino {
+export const getRandomTetromino = (): Tetromino => {
   const tetrominoKeys = Object.keys(TETROMINOS);
   const randomKey =
     tetrominoKeys[Math.floor(Math.random() * tetrominoKeys.length)];
   return TETROMINOS[randomKey];
-}
+};
