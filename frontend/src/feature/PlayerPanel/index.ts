@@ -1,2 +1,2 @@
 export { default } from "./PlayerPanel";
-export * from "./types";
+export * from "./type";
