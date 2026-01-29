@@ -1,4 +1,4 @@
-type PlayMode = "SINGLE" | "MULTI";
+import type { PlayMode } from "@/types/types";
 
 export interface PlayerPanelProps {
   mode: PlayMode;
@@ -8,4 +8,5 @@ export interface PlayerPanelProps {
   name: string;
   onReadyChange: (ready: boolean) => void;
   countdown: number | null;
+  controlScheme?: "ARROWS" | "WASD";
 }

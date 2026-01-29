@@ -13,3 +13,5 @@ export interface FallingTetromino {
   };
   rotationIndex: number;
 }
+
+export type PlayMode = "SINGLE" | "MULTI" | "SOCKET";

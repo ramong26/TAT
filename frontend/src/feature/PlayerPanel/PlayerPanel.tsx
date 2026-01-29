@@ -10,13 +10,15 @@ export default function PlayerPanel({
   name,
   onReadyChange,
   countdown,
+  controlScheme,
 }: PlayerPanelProps) {
   // Countdown display logic
   const countdownDisplay = () => {
     if (countdown === null && mode === "MULTI") return "waiting...";
     else if (countdown !== null && countdown > 0)
       return `Game starts in ${countdown}...`;
-    else if (countdown === 0) return <GameBoard />;
+    else if (countdown === 0)
+      return <GameBoard mode={mode} controlScheme={controlScheme} />;
   };
 
   // Display based on mode

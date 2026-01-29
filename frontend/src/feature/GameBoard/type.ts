@@ -1,3 +1,6 @@
+import type { PlayMode } from "@/types/types";
+
 export interface GameBoardProps {
-  // Define props for GameBoard if needed in the future
+  mode: PlayMode;
+  controlScheme?: "ARROWS" | "WASD";
 }

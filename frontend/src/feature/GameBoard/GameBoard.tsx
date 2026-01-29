@@ -1,8 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
-import { getRandomTetromino } from "./tetromino";
-import type { FallingTetromino } from "@/types/types";
 
-export default function GameBoard() {
+import { getRandomTetromino } from "./tetromino";
+
+import type { FallingTetromino } from "@/types/types";
+import type { GameBoardProps } from "./type";
+
+export default function GameBoard({
+  mode,
+  controlScheme = "ARROWS",
+}: GameBoardProps) {
   const rows = 20;
   const cols = 10;
   const [board, setBoard] = useState<(string | null)[][]>(
@@ -188,9 +194,10 @@ export default function GameBoard() {
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       e.preventDefault();
-      // Restart when gameover and user presses 'r'
+      const pressed = String(e.key).toLowerCase();
+
       if (gameover) {
-        if (e.key.toLowerCase() === "r") {
+        if (mode === "SINGLE" && pressed === "r") {
           setBoard(
             Array.from({ length: rows }, () =>
               Array.from({ length: cols }, () => null),
@@ -205,19 +212,33 @@ export default function GameBoard() {
         }
         return;
       }
+
       if (!fallingTetromino) return;
+
+      const keyMap =
+        controlScheme === "WASD"
+          ? { left: "a", right: "d", down: "s", rotate: "w" }
+          : {
+              left: "arrowleft",
+              right: "arrowright",
+              down: "arrowdown",
+              rotate: "arrowup",
+            };
+
       const { tetromino, position, rotationIndex } = fallingTetromino;
       const newPosition = { ...position };
       let newRotationIndex = rotationIndex;
 
-      if (e.key === "ArrowLeft") {
+      if (pressed === keyMap.left) {
         newPosition.x -= 1;
-      } else if (e.key === "ArrowRight") {
+      } else if (pressed === keyMap.right) {
         newPosition.x += 1;
-      } else if (e.key === "ArrowDown") {
+      } else if (pressed === keyMap.down) {
         newPosition.y += 1;
-      } else if (e.key === "ArrowUp") {
+      } else if (pressed === keyMap.rotate) {
         newRotationIndex = (rotationIndex + 1) % tetromino.shape.length;
+      } else {
+        return;
       }
 
       if (
@@ -237,14 +258,26 @@ export default function GameBoard() {
         });
       }
     },
-    [fallingTetromino, board, isCollision, gameover, fallingTetrominoInitial],
+    [
+      fallingTetromino,
+      board,
+      isCollision,
+      gameover,
+      fallingTetrominoInitial,
+      mode,
+      controlScheme,
+      rows,
+      cols,
+    ],
   );
+
   useEffect(() => {
+    if (mode !== "SINGLE" && mode !== "MULTI") return;
     window.addEventListener("keydown", handleKeyDown);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [handleKeyDown]);
+  }, [handleKeyDown, mode]);
 
   // Render the board with the falling tetromino
   const displayBoard = board.map((row) => [...row]);
