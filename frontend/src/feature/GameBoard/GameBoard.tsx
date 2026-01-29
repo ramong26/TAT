@@ -95,7 +95,20 @@ export default function GameBoard() {
               }
             });
           });
-          setBoard(newBoard);
+
+          // Clear full rows
+          const nonFullRows = newBoard.filter((row) =>
+            row.some((cell) => cell === null),
+          );
+          const clearedRows = rows - nonFullRows.length;
+          for (let i = 0; i < clearedRows; i++) {
+            nonFullRows.unshift(Array.from({ length: cols }, () => null));
+          }
+
+          const clearedBoard = nonFullRows;
+          setBoard(clearedBoard);
+
+          // setBoard(newBoard);
           const nextTetromino = fallingTetrominoInitial();
           const nextShape = nextTetromino.tetromino.shape[0];
           let gameOverCollision = false;
@@ -131,7 +144,7 @@ export default function GameBoard() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [fallingTetromino, board, isCollision, fallingTetrominoInitial]);
+  }, [board, isCollision, fallingTetrominoInitial]);
 
   // Handle keyboard input
   const handleKeyDown = useCallback(
