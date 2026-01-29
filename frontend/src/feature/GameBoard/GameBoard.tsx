@@ -150,6 +150,19 @@ export default function GameBoard() {
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       e.preventDefault();
+      // Restart when gameover and user presses 'r'
+      if (gameover) {
+        if (e.key.toLowerCase() === "r") {
+          setBoard(
+            Array.from({ length: rows }, () =>
+              Array.from({ length: cols }, () => null),
+            ),
+          );
+          setGameover(false);
+          setFallingTetromino(fallingTetrominoInitial());
+        }
+        return;
+      }
       if (!fallingTetromino) return;
       const { tetromino, position, rotationIndex } = fallingTetromino;
       const newPosition = { ...position };
@@ -182,7 +195,7 @@ export default function GameBoard() {
         });
       }
     },
-    [fallingTetromino, board, isCollision],
+    [fallingTetromino, board, isCollision, gameover, fallingTetrominoInitial],
   );
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
@@ -214,6 +227,85 @@ export default function GameBoard() {
   return (
     <div className="relative bg-transparent border-2 border-green-400 rounded-xl shadow-[0_0_24px_#00ff00bb] p-2 flex flex-col items-center transition-all duration-300 w-full h-full">
       <div className="absolute inset-0 rounded-xl border-2 border-green-400 opacity-10 pointer-events-none blur-[1px] z-0" />
+      {gameover && (
+        <div className="absolute inset-0 z-40 flex items-center justify-center pointer-events-none rounded-xl border-2">
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+          <div className="relative z-50 text-center px-6">
+            <div
+              className="glitch text-4xl md:text-6xl font-extrabold"
+              data-text="GAME OVER"
+            >
+              GAME OVER
+            </div>
+            <div className="mt-3 text-sm text-green-200/90">
+              Press <span className="font-bold">R</span> to restart
+            </div>
+          </div>
+
+          {/* scanlines & crack shards */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="scanlines w-full h-full" />
+            <div className="crack crack-1" />
+            <div className="crack crack-2" />
+            <div className="crack crack-3" />
+          </div>
+          <style>{`
+            .glitch {
+              color: #9aff7a;
+              text-shadow: 0 0 8px #00ff66;
+              position: relative;
+              display: inline-block;
+              letter-spacing: 2px;
+              transform: translateZ(0);
+            }
+            .glitch::before, .glitch::after {
+              content: attr(data-text);
+              position: absolute;
+              left: 0;
+              top: 0;
+              width: 100%;
+              height: 100%;
+              pointer-events: none;
+            }
+            .glitch::before {
+              color: #ff66b2;
+              z-index: -1;
+              transform: translate(2px, -2px);
+              mix-blend-mode: screen;
+              opacity: 0.8;
+              animation: glitchTop 1.8s infinite linear;
+            }
+            .glitch::after {
+              color: #66fff0;
+              z-index: -2;
+              transform: translate(-2px, 2px);
+              mix-blend-mode: screen;
+              opacity: 0.8;
+              animation: glitchBottom 1.6s infinite linear;
+            }
+            @keyframes glitchTop {
+              0% { clip: rect(0, 9999px, 0, 0); }
+              10% { clip: rect(2px, 9999px, 22px, 0); transform: translate(2px, -2px); }
+              20% { clip: rect(10px, 9999px, 40px, 0); transform: translate(-1px, 1px); }
+              30% { clip: rect(0, 9999px, 0, 0); }
+              100% { clip: rect(0, 9999px, 0, 0); }
+            }
+            @keyframes glitchBottom {
+              0% { clip: rect(0, 9999px, 0, 0); }
+              15% { clip: rect(8px, 9999px, 34px, 0); transform: translate(-2px, 2px); }
+              35% { clip: rect(4px, 9999px, 28px, 0); transform: translate(1px, -1px); }
+              100% { clip: rect(0, 9999px, 0, 0); }
+            }
+            .scanlines { background-image: linear-gradient(rgba(255,255,255,0.02) 50%, transparent 50%); background-size: 100% 4px; mix-blend-mode: overlay; opacity: 0.6; }
+            .crack { position: absolute; pointer-events: none; background: linear-gradient(90deg, rgba(255,255,255,0.04), rgba(0,0,0,0.2)); filter: blur(0.6px); opacity: 0.9; }
+            .crack-1 { width: 8px; height: 140%; left: 40%; top: -20%; transform: rotate(10deg); animation: crackShake 1.2s infinite ease-in-out; }
+            .crack-2 { width: 6px; height: 120%; left: 58%; top: -10%; transform: rotate(-8deg); animation: crackShake 1.6s infinite ease-in-out; }
+            .crack-3 { width: 10px; height: 160%; left: 50%; top: -30%; transform: rotate(2deg); animation: crackFlicker 2.2s infinite linear; opacity:0.5 }
+            @keyframes crackShake { 0% { transform: translateX(0) rotate(2deg); } 50% { transform: translateX(1px) rotate(0deg); } 100% { transform: translateX(0) rotate(2deg); } }
+            @keyframes crackFlicker { 0% { opacity: 0.5 } 50% { opacity: 0.9 } 100% { opacity: 0.5 } }
+          `}</style>
+        </div>
+      )}
       <div
         className="relative grid gap-0.5 z-10"
         style={{

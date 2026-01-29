@@ -63,7 +63,7 @@ export default function PlayerPanel({
         {!ready ? (
           modeDisplay()
         ) : (
-          <span className="text-[#00ff00] font-mono text-2xl ">
+          <span className="text-[#00ff00] font-mono text-2xl w-full text-center">
             {countdownDisplay()}
           </span>
         )}
