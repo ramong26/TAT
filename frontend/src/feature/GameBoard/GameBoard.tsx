@@ -11,6 +11,12 @@ export default function GameBoard() {
     ),
   );
 
+  // Game Score and Stats
+  const [score, setScore] = useState(0);
+  const [totalLinesCleared, setTotalLinesCleared] = useState(0);
+  const [comboCount, setComboCount] = useState(0);
+  const [backToBack, setBackToBack] = useState(false);
+
   // Collision detection
   const isCollision = useCallback(
     (
@@ -108,6 +114,38 @@ export default function GameBoard() {
           const clearedBoard = nonFullRows;
           setBoard(clearedBoard);
 
+          if (clearedRows > 0) {
+            const basePointsMap: Record<number, number> = {
+              1: 40,
+              2: 100,
+              3: 300,
+              4: 1200,
+            };
+            const basePoints = basePointsMap[clearedRows] ?? 0;
+            let pointsEarned = basePoints;
+
+            if (clearedRows === 4) {
+              if (backToBack) {
+                pointsEarned = Math.floor(basePoints * 1.5);
+              }
+              setBackToBack(true);
+            } else {
+              setBackToBack(false);
+            }
+
+            setComboCount((prevCombo) => {
+              const newCombo = prevCombo + 1;
+              const comboBonus = newCombo > 1 ? (newCombo - 1) * 50 : 0;
+              pointsEarned += comboBonus;
+              return newCombo;
+            });
+
+            setScore((prevScore) => prevScore + pointsEarned);
+            setTotalLinesCleared((prev) => prev + clearedRows);
+          } else {
+            setComboCount(0);
+          }
+
           // setBoard(newBoard);
           const nextTetromino = fallingTetrominoInitial();
           const nextShape = nextTetromino.tetromino.shape[0];
@@ -144,7 +182,7 @@ export default function GameBoard() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [board, isCollision, fallingTetrominoInitial]);
+  }, [board, isCollision, fallingTetrominoInitial, backToBack]);
 
   // Handle keyboard input
   const handleKeyDown = useCallback(
@@ -158,6 +196,10 @@ export default function GameBoard() {
               Array.from({ length: cols }, () => null),
             ),
           );
+          setScore(0);
+          setTotalLinesCleared(0);
+          setComboCount(0);
+          setBackToBack(false);
           setGameover(false);
           setFallingTetromino(fallingTetrominoInitial());
         }
@@ -223,10 +265,18 @@ export default function GameBoard() {
       });
     });
   }
-
   return (
     <div className="relative bg-transparent border-2 border-green-400 rounded-xl shadow-[0_0_24px_#00ff00bb] p-2 flex flex-col items-center transition-all duration-300 w-full h-full">
       <div className="absolute inset-0 rounded-xl border-2 border-green-400 opacity-10 pointer-events-none blur-[1px] z-0" />
+
+      {/* score / HUD */}
+      <div className="absolute top-3 right-3 z-30 bg-black/60 backdrop-blur-sm px-3 py-2 rounded-md text-sm text-green-100 border border-green-600">
+        <div className="font-semibold">SCORE</div>
+        <div className="text-lg font-bold">{score}</div>
+        <div className="mt-1 text-xs">LINES {totalLinesCleared}</div>
+        <div className="text-xs">COMBO {comboCount}</div>
+      </div>
+
       {gameover && (
         <div className="absolute inset-0 z-40 flex items-center justify-center pointer-events-none rounded-xl border-2">
           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
@@ -236,6 +286,9 @@ export default function GameBoard() {
               data-text="GAME OVER"
             >
               GAME OVER
+            </div>
+            <div className="mt-3 text-3xl text-green-200/90">
+              <span className="font-extrabold">Score</span>: {score}
             </div>
             <div className="mt-3 text-sm text-green-200/90">
               Press <span className="font-bold">R</span> to restart
