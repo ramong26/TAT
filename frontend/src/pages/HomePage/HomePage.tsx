@@ -29,9 +29,15 @@ function App() {
   const handleSinglePlay = () => {
     navigate("/singleplay");
   };
+
   const handleMultiPlay = () => {
     navigate("/multiplay");
   };
+
+  const handleSocketPlay = () => {
+    navigate("/socketplay");
+  };
+
   return (
     <div className="relative min-h-screen bg-black overflow-hidden">
       <canvas
@@ -54,7 +60,13 @@ function App() {
             className="border-2 border-green-500 bg-[#0c1610] text-[#00ff00] px-8 py-3 text-lg font-mono rounded-lg shadow-[0_0_8px_#00ff00] font-bold  hover:bg-[#00ff00] hover:text-[#00fff6]"
             onClick={handleMultiPlay}
           >
-            MULTI PLAY
+            LOCAL 2P
+          </button>
+          <button
+            className="border-2 border-green-500 bg-[#0c1610] text-[#00ff00] px-8 py-3 text-lg font-mono rounded-lg shadow-[0_0_8px_#00ff00] font-bold  hover:bg-[#00ff00] hover:text-[#00fff6]"
+            onClick={handleSocketPlay}
+          >
+            ONLINE MULTI
           </button>
         </div>
       </div>

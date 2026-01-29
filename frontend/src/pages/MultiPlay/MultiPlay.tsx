@@ -74,6 +74,7 @@ export default function MultiPlay() {
               name={name}
               onReadyChange={(newReady) => setPlayerReady(index, newReady)}
               countdown={countdown}
+              controlScheme={index === 0 ? "ARROWS" : "WASD"}
             />
           </div>
         ))}
