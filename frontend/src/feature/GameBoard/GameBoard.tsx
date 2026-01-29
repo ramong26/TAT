@@ -18,10 +18,12 @@ export default function GameBoard({
   );
 
   // Game Score and Stats
-  const [score, setScore] = useState(0);
-  const [totalLinesCleared, setTotalLinesCleared] = useState(0);
-  const [comboCount, setComboCount] = useState(0);
-  const [backToBack, setBackToBack] = useState(false);
+  const [gameStats, setGameStats] = useState({
+    score: 0,
+    linesCleared: 0,
+    combo: 0,
+    backToBack: false,
+  });
 
   // Collision detection
   const isCollision = useCallback(
@@ -131,25 +133,31 @@ export default function GameBoard({
             let pointsEarned = basePoints;
 
             if (clearedRows === 4) {
-              if (backToBack) {
+              if (gameStats.backToBack) {
                 pointsEarned = Math.floor(basePoints * 1.5);
               }
-              setBackToBack(true);
+              setGameStats((prev) => ({ ...prev, backToBack: true }));
             } else {
-              setBackToBack(false);
+              setGameStats((prev) => ({ ...prev, backToBack: false }));
             }
 
-            setComboCount((prevCombo) => {
-              const newCombo = prevCombo + 1;
+            setGameStats((prev) => {
+              const newCombo = prev.combo + 1;
               const comboBonus = newCombo > 1 ? (newCombo - 1) * 50 : 0;
               pointsEarned += comboBonus;
-              return newCombo;
+              return { ...prev, combo: newCombo };
             });
 
-            setScore((prevScore) => prevScore + pointsEarned);
-            setTotalLinesCleared((prev) => prev + clearedRows);
+            setGameStats((prev) => ({
+              ...prev,
+              score: prev.score + pointsEarned,
+            }));
+            setGameStats((prev) => ({
+              ...prev,
+              linesCleared: prev.linesCleared + clearedRows,
+            }));
           } else {
-            setComboCount(0);
+            setGameStats((prev) => ({ ...prev, combo: 0 }));
           }
 
           // setBoard(newBoard);
@@ -188,7 +196,7 @@ export default function GameBoard({
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [board, isCollision, fallingTetrominoInitial, backToBack]);
+  }, [board, isCollision, fallingTetrominoInitial, gameStats.backToBack]);
 
   // Handle keyboard input
   const handleKeyDown = useCallback(
@@ -203,10 +211,12 @@ export default function GameBoard({
               Array.from({ length: cols }, () => null),
             ),
           );
-          setScore(0);
-          setTotalLinesCleared(0);
-          setComboCount(0);
-          setBackToBack(false);
+          setGameStats({
+            score: 0,
+            linesCleared: 0,
+            combo: 0,
+            backToBack: false,
+          });
           setGameover(false);
           setFallingTetromino(fallingTetrominoInitial());
         }
@@ -305,9 +315,9 @@ export default function GameBoard({
       {/* score / HUD */}
       <div className="absolute top-3 right-3 z-30 bg-black/60 backdrop-blur-sm px-3 py-2 rounded-md text-sm text-green-100 border border-green-600">
         <div className="font-semibold">SCORE</div>
-        <div className="text-lg font-bold">{score}</div>
-        <div className="mt-1 text-xs">LINES {totalLinesCleared}</div>
-        <div className="text-xs">COMBO {comboCount}</div>
+        <div className="text-lg font-bold">{gameStats.score}</div>
+        <div className="mt-1 text-xs">LINES {gameStats.linesCleared}</div>
+        <div className="text-xs">COMBO {gameStats.combo}</div>
       </div>
 
       {gameover && (
@@ -321,7 +331,7 @@ export default function GameBoard({
               GAME OVER
             </div>
             <div className="mt-3 text-3xl text-green-200/90">
-              <span className="font-extrabold">Score</span>: {score}
+              <span className="font-extrabold">Score</span>: {gameStats.score}
             </div>
             <div className="mt-3 text-sm text-green-200/90">
               Press <span className="font-bold">R</span> to restart
